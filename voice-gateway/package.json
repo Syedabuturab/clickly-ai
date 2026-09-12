@@ -6,7 +6,12 @@
   "scripts": {
     "start": "node server.mjs"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
+    "openai": "^6.0.0",
+    "twilio": "^5.10.0",
     "ws": "^8.18.0"
   }
 }
