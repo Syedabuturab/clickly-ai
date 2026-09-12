@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  agents    Agent[]
+  contacts  Contact[]
+  calls     Call[]
+}
+
+model Agent {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  role           String       @default("AI Receptionist")
+  language       String       @default("en")
+  voice          String       @default("alloy")
+  instructions   String       @default("")
+  active         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  calls          Call[]
+}
+
+model Contact {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String?
+  phone          String?
+  email          String?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  calls          Call[]
+}
+
+model Call {
+  id             String       @id @default(cuid())
+  organizationId String
+  agentId        String?
+  contactId      String?
+  providerCallId String?      @unique
+  direction      String       @default("inbound")
+  status         String       @default("received")
+  outcome        String?
+  startedAt      DateTime     @default(now())
+  endedAt        DateTime?
+  durationSec    Int?
+  transcript     String?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  agent          Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  contact        Contact?     @relation(fields: [contactId], references: [id], onDelete: SetNull)
+}
